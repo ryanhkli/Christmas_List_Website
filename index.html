@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Ryan's Christmas List</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* One dark theme by choice. Layout: left-aligned header, price-range sections, card grid. */
+:root {
+  color-scheme: dark;
+  --bg: #090d18;
+  --card: #121829;
+  --edge: #263049;
+  --text: #f5f7fc;
+  --muted: #8f9bb6;
+  --soft: #c9d4ee;
+  --red: #ff5a6a;
+  --gold: #ffcf6b;
+  --green: #3ddc97;
+  --font: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text); font-family: var(--font);
+  background-image:
+    radial-gradient(520px 420px at 8% 0%, rgba(255, 70, 95, .22), transparent 70%),
+    radial-gradient(480px 420px at 96% 12%, rgba(40, 215, 140, .16), transparent 70%);
+  background-repeat: no-repeat;
+}
+.wrap { max-width: 980px; margin: 0 auto; padding: 28px 18px 60px; }
+
+header { position: relative; padding: 18px 0 8px; }
+.pill {
+  display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: .22em; color: var(--gold);
+  border: 1px solid rgba(255, 207, 107, .6); border-radius: 999px; padding: 6px 14px;
+}
+h1 { margin: 18px 0 0; font-weight: 700; line-height: .98; font-size: clamp(44px, 11vw, 84px); letter-spacing: -.02em; }
+h1 .grad {
+  display: block; background: linear-gradient(90deg, var(--red), var(--gold));
+  -webkit-background-clip: text; background-clip: text; color: transparent; padding-bottom: .12em;
+}
+.tree { position: absolute; right: 4px; top: 30px; width: clamp(64px, 14vw, 104px); height: auto; }
+.meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--soft);
+  background: rgba(255, 255, 255, .05); border: 1px solid var(--edge); border-radius: 999px; padding: 7px 14px;
+}
+.starbadge {
+  display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
+  background: #05070d; color: var(--gold); font-size: 13px; line-height: 1; border: 1px solid rgba(255, 207, 107, .5);
+}
+button.chip { font: inherit; font-size: 13px; cursor: pointer; }
+.chip[hidden] { display: none; }
+button.chip[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.notice {
+  margin-top: 16px; padding: 12px 14px; border-radius: 12px; font-size: 13px; color: var(--soft);
+  border: 1px dashed var(--edge); background: rgba(255, 255, 255, .03);
+}
+.notice[hidden] { display: none; }
+
+section { margin-top: 44px; }
+.sechead { display: flex; align-items: baseline; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--edge); }
+.sechead h2 { margin: 0; font-size: 24px; font-weight: 700; padding-left: 14px; border-left: 4px solid var(--c, var(--red)); line-height: 1.1; }
+.sechead span { margin-left: auto; font-size: 13px; color: var(--muted); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 18px; }
+
+.card {
+  position: relative; display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--edge);
+  border-radius: 18px; padding: 8px; box-shadow: 0 6px 0 rgba(0, 0, 0, .28);
+}
+.photo { position: relative; display: block; border-radius: 12px; overflow: hidden; aspect-ratio: 16 / 10; }
+.photo img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 8px; }
+.tile { display: grid; place-items: center; text-align: center; width: 100%; height: 100%; color: #fff; }
+.tile b { display: block; font-size: 34px; font-weight: 700; }
+.tile small { font-size: 12px; opacity: .9; }
+.tile.claude { background: #d97757; } .tile.runpod { background: #5d3fd3; }
+.rank {
+  position: absolute; left: 10px; top: 10px; font-size: 11px; font-weight: 700; color: #fff;
+  background: rgba(9, 13, 24, .88); border-radius: 999px; padding: 3px 9px; font-variant-numeric: tabular-nums;
+}
+.photo .starbadge { position: absolute; right: 10px; top: 10px; width: 30px; height: 30px; font-size: 16px; }
+.body { display: flex; flex-direction: column; gap: 4px; padding: 14px 8px 8px; flex: 1; }
+.name { margin: 0; font-size: 16px; font-weight: 500; line-height: 1.25; }
+.desc { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+.row { display: flex; align-items: center; gap: 10px; margin-top: auto; padding-top: 12px; }
+.price { font-size: 21px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.price small { font-size: 11.5px; font-weight: 400; color: var(--muted); margin-left: 6px; }
+.store {
+  margin-left: auto; font-size: 12.5px; font-weight: 500; color: var(--soft); text-decoration: none; white-space: nowrap;
+  border: 1px solid #33405e; background: rgba(255, 255, 255, .06); border-radius: 999px; padding: 7px 13px;
+}
+.store b { color: var(--gold); font-weight: 600; }
+.buy {
+  margin-top: 10px; width: 100%; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  color: #06140e; background: var(--green); border: 0; border-radius: 12px; padding: 12px 14px; min-height: 46px;
+}
+.buy.confirm { background: var(--gold); }
+.buy.done { background: transparent; color: var(--green); border: 1px solid rgba(61, 220, 151, .55); }
+.buy:disabled { opacity: .45; cursor: not-allowed; }
+.buy[hidden] { display: none; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.card.bought .photo, .card.bought .name, .card.bought .desc, .card.bought .price { opacity: .38; }
+.card.bought .name { text-decoration: line-through; }
+.ribbon {
+  position: absolute; right: -1px; top: 54px; z-index: 2; font-size: 11px; font-weight: 700; letter-spacing: .14em;
+  color: #06140e; background: var(--green); padding: 6px 12px 6px 14px; border-radius: 8px 0 0 8px;
+}
+.ribbon[hidden] { display: none; }
+body.hide-bought .card.bought { display: none; }
+
+footer { margin-top: 60px; padding-top: 26px; border-top: 1px solid var(--edge); text-align: center; }
+footer h3 { margin: 0; font-size: 28px; font-weight: 700; }
+footer p { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
+footer .fine { font-size: 11.5px; margin-top: 18px; }
+footer button.chip { margin-top: 18px; }
+@media (max-width: 420px) { .tree { top: 64px; } }
+@media (prefers-reduced-motion: no-preference) { .buy, .card { transition: opacity .2s, background-color .2s; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="pill">CHRISTMAS 2026</span>
+    <svg class="tree" viewBox="0 0 104 140" aria-hidden="true">
+      <rect x="46" y="118" width="12" height="18" rx="2" fill="#5a4632"/>
+      <rect x="6" y="100" width="92" height="15" rx="7.5" fill="#1f9d6b"/>
+      <rect x="15" y="81" width="74" height="15" rx="7.5" fill="#27b57c"/>
+      <rect x="24" y="62" width="56" height="15" rx="7.5" fill="#31c98b"/>
+      <rect x="33" y="43" width="38" height="15" rx="7.5" fill="#3ddc97"/>
+      <rect x="42" y="24" width="20" height="15" rx="7.5" fill="#63e8b0"/>
+      <circle cx="24" cy="107.5" r="3.4" fill="#ff5a6a"/><circle cx="68" cy="107.5" r="3.4" fill="#ffcf6b"/>
+      <circle cx="44" cy="88.5" r="3.4" fill="#5db7ff"/><circle cx="74" cy="88.5" r="3.4" fill="#ff5a6a"/>
+      <circle cx="38" cy="69.5" r="3.4" fill="#ffcf6b"/><circle cx="60" cy="50.5" r="3.4" fill="#ff5a6a"/>
+      <path d="M52 2l3.1 6.6 7.2.9-5.3 5 1.4 7.1L52 18l-6.4 3.6 1.4-7.1-5.3-5 7.2-.9z" fill="#ffcf6b"/>
+    </svg>
+    <h1>Ryan&rsquo;s <span class="grad">Christmas List</span></h1>
+    <div class="meta">
+      <span class="chip"><span class="starbadge" aria-hidden="true">&#9733;</span> Most wanted</span>
+      <span class="chip" id="count" hidden></span>
+      <button class="chip" id="hideBought" type="button" aria-pressed="false" hidden>Hide purchased</button>
+    </div>
+    <p class="notice" id="notice" hidden></p>
+  </header>
+  <main id="list"></main>
+  <footer>
+    <h3>Merry Christmas</h3>
+    <p>Thanks for looking. Ryan</p>
+    <button class="chip" id="ryanMode" type="button" aria-pressed="false">I&rsquo;m Ryan: hide what&rsquo;s been bought</button>
+    <p class="fine">Prices as of November 18, 2026 and may change.</p>
+  </footer>
+</div>
+<script src="config.js"></script>
+<script>
+const ITEMS = [
+ {
+  "id": "claude-subscription",
+  "name": "Claude subscription",
+  "desc": "AI assistant plan, one month",
+  "price": 200.0,
+  "monthly": true,
+  "url": null,
+  "star": true,
+  "tile": "claude"
+ },
+ {
+  "id": "cidetty-laptop-screen-extender",
+  "name": "CIDETTY Laptop Screen Extender",
+  "desc": "14\" FHD 1080P IPS, ultra-thin",
+  "price": 199.0,
+  "monthly": false,
+  "url": "https://a.co/d/0c8ufl8B",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/monitor.jpg",
+  "bg": "#f4f8f9",
+  "w": 414,
+  "h": 360
+ },
+ {
+  "id": "sedeta-75-home-office-desk",
+  "name": "SEDETA 75\" Home Office Desk",
+  "desc": "Large desk with 5 drawers and power outlets",
+  "price": 159.99,
+  "monthly": false,
+  "url": "https://a.co/d/03KyVClc",
+  "star": true,
+  "store": "Amazon",
+  "img": "img/desk.jpg",
+  "bg": "#ffffff",
+  "w": 405,
+  "h": 393
+ },
+ {
+  "id": "nano-clear-watch-cleaner-kit",
+  "name": "Nano Clear Watch Cleaner Kit",
+  "desc": "Watch cleaner and scratch remover 2.1, 6-piece set",
+  "price": 99.95,
+  "monthly": false,
+  "url": "https://a.co/d/0euxQLxi",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/watch.jpg",
+  "bg": "#f7f8fa",
+  "w": 414,
+  "h": 426
+ },
+ {
+  "id": "stackchan-desktop-robot",
+  "name": "StackChan Desktop Robot",
+  "desc": "Programmable robot with touchscreen, camera and voice",
+  "price": 99.0,
+  "monthly": false,
+  "url": "https://www.electromaker.io/shop/product/stackchan-is-a-programmable-desktop-robot-with-expressive-motions-and-voice-features-ideal-for-interactive-ai-experiments-and-creative-projects",
+  "star": false,
+  "store": "Electromaker",
+  "img": "img/stackchan.jpg",
+  "bg": "#ffffff",
+  "w": 500,
+  "h": 510
+ },
+ {
+  "id": "tp-link-av2000-powerline-ethernet-kit",
+  "name": "TP-Link AV2000 Powerline Ethernet Kit",
+  "desc": "Ethernet through wall outlets, passthrough, 2 ports each",
+  "price": 89.99,
+  "monthly": false,
+  "url": "https://a.co/d/06hKEvGi",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/powerline.jpg",
+  "bg": "#f7f8fa",
+  "w": 414,
+  "h": 330
+ },
+ {
+  "id": "lego-ferrari-lewis-hamilton-helmet",
+  "name": "LEGO Ferrari Lewis Hamilton Helmet",
+  "desc": "LEGO Editions Scuderia Ferrari HP, set 43022",
+  "price": 86.3,
+  "monthly": false,
+  "url": "https://a.co/d/01aaTAiN",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/lego.jpg",
+  "bg": "#f7f8fa",
+  "w": 422,
+  "h": 424
+ },
+ {
+  "id": "f1-racing-10-car-display-board",
+  "name": "F1 Racing 10-Car Display Board",
+  "desc": "Wall display for LEGO Speed Champions cars",
+  "price": 85.0,
+  "monthly": false,
+  "url": "https://a.co/d/0ciPYpQh",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/display.jpg",
+  "bg": "#ebecee",
+  "w": 405,
+  "h": 300
+ },
+ {
+  "id": "smart-biometric-safe-box",
+  "name": "Smart Biometric Safe Box",
+  "desc": "Small home safe with fingerprint lock and keypad",
+  "price": 69.99,
+  "monthly": false,
+  "url": "https://a.co/d/0iCjA8SU",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/safe.jpg",
+  "bg": "#ffffff",
+  "w": 405,
+  "h": 345
+ },
+ {
+  "id": "beichen-mini-fridge",
+  "name": "BEICHEN Mini Fridge",
+  "desc": "6 liter / 8 can small fridge, black",
+  "price": 59.99,
+  "monthly": false,
+  "url": "https://a.co/d/012L8yzY",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/fridge.jpg",
+  "bg": "#f7f8fa",
+  "w": 414,
+  "h": 430
+ },
+ {
+  "id": "onemix-42-desk-lamp",
+  "name": "ONEMIX 42\" Desk Lamp",
+  "desc": "Home office lamp with base, 1800 lumens, remote",
+  "price": 59.99,
+  "monthly": false,
+  "url": "https://a.co/d/07E5uH9F",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/lamp.jpg",
+  "bg": "#ffffff",
+  "w": 405,
+  "h": 405
+ },
+ {
+  "id": "dreo-space-heater",
+  "name": "DREO Space Heater",
+  "desc": "Portable electric heater for indoor use, with remote",
+  "price": 39.99,
+  "monthly": false,
+  "url": "https://a.co/d/08mALe6P",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/heater.jpg",
+  "bg": "#f7f8fa",
+  "w": 414,
+  "h": 420
+ },
+ {
+  "id": "tom-ford-ombre-leather-mini",
+  "name": "Tom Ford Ombre Leather (Mini)",
+  "desc": "Eau de parfum spray, 0.34 oz / 10 ml",
+  "price": 39.96,
+  "monthly": false,
+  "url": "https://a.co/d/0az1jywD",
+  "star": true,
+  "store": "Amazon",
+  "img": "img/tomford.jpg",
+  "bg": "#f7f8fa",
+  "w": 390,
+  "h": 425
+ },
+ {
+  "id": "acoustic-guitar-soundhole-pickup",
+  "name": "Acoustic Guitar Soundhole Pickup",
+  "desc": "Passive magnetic pickup for acoustic guitar",
+  "price": 35.99,
+  "monthly": false,
+  "url": "https://a.co/d/01ogjFZV",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/pickup.jpg",
+  "bg": "#f7f8fa",
+  "w": 409,
+  "h": 354
+ },
+ {
+  "id": "cast-iron-grill-weights-2-pack",
+  "name": "Cast Iron Grill Weights, 2-Pack",
+  "desc": "Pro grade, pre-seasoned, wood handles",
+  "price": 34.99,
+  "monthly": false,
+  "url": "https://a.co/d/0dVFTqoc",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/grill.jpg",
+  "bg": "#f6f9fa",
+  "w": 410,
+  "h": 420
+ },
+ {
+  "id": "neuro-energy-focus-gum",
+  "name": "Neuro Energy & Focus Gum",
+  "desc": "Peppermint, 90 count, caffeine and L-theanine",
+  "price": 30.99,
+  "monthly": false,
+  "url": "https://a.co/d/0eBQLRmL",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/gum.jpg",
+  "bg": "#f7f8fa",
+  "w": 414,
+  "h": 430
+ },
+ {
+  "id": "dreamsky-wooden-digital-alarm-clock",
+  "name": "DreamSky Wooden Digital Alarm Clock",
+  "desc": "Shows date, day of week and temperature",
+  "price": 29.99,
+  "monthly": false,
+  "url": "https://a.co/d/05l09XNE",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/clock.jpg",
+  "bg": "#f4f8f9",
+  "w": 414,
+  "h": 225
+ },
+ {
+  "id": "trond-surge-protector-power-strip",
+  "name": "TROND Surge Protector Power Strip",
+  "desc": "Power strip with 4 USB ports, 5 ft cord, 4000J",
+  "price": 29.98,
+  "monthly": false,
+  "url": "https://a.co/d/0bSnqaYZ",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/surge.jpg",
+  "bg": "#f7f8fa",
+  "w": 411,
+  "h": 411
+ },
+ {
+  "id": "monster-energy-zero-ultra-15-pack",
+  "name": "Monster Energy Zero Ultra, 15-Pack",
+  "desc": "Sugar free energy drink, 16 oz cans",
+  "price": 29.89,
+  "monthly": false,
+  "url": "https://a.co/d/0dJMtY8h",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/monster.jpg",
+  "bg": "#f7f8fa",
+  "w": 414,
+  "h": 305
+ },
+ {
+  "id": "lego-speed-champions-mclaren-f1-car",
+  "name": "LEGO Speed Champions McLaren F1 Car",
+  "desc": "McLaren F1 Team MCL38, set 77251, 269 pieces",
+  "price": 26.99,
+  "monthly": false,
+  "url": "https://a.co/d/0dUoolpZ",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/mclaren.jpg",
+  "bg": "#ffffff",
+  "w": 902,
+  "h": 891
+ },
+ {
+  "id": "gowatt-magnetic-charger-stand",
+  "name": "GOWATT Magnetic Charger Stand",
+  "desc": "25W Qi2.2 wireless charger, MagSafe compatible",
+  "price": 25.99,
+  "monthly": false,
+  "url": "https://a.co/d/08xXlEjS",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/gowatt.jpg",
+  "bg": "#f7f8fa",
+  "w": 414,
+  "h": 430
+ },
+ {
+  "id": "naoki-matcha-superior-blend",
+  "name": "Naoki Matcha Superior Blend",
+  "desc": "Ceremonial grade Japanese matcha, 40g / 1.4oz tin",
+  "price": 24.99,
+  "monthly": false,
+  "url": "https://a.co/d/06HtuDT0",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/matcha.jpg",
+  "bg": "#f7f8fa",
+  "w": 414,
+  "h": 420
+ },
+ {
+  "id": "electric-compressed-air-duster",
+  "name": "Electric Compressed Air Duster",
+  "desc": "130,000 RPM cordless duster with nozzle set",
+  "price": 23.99,
+  "monthly": false,
+  "url": "https://a.co/d/0b3FLTLw",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/duster.jpg",
+  "bg": "#f7f8fa",
+  "w": 414,
+  "h": 410
+ },
+ {
+  "id": "gearit-cat6-ethernet-cables-10-pack",
+  "name": "GEARit Cat6 Ethernet Cables, 10-Pack",
+  "desc": "4 ft Cat 6 patch cables, black",
+  "price": 23.98,
+  "monthly": false,
+  "url": "https://a.co/d/0go89WY3",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/cables.jpg",
+  "bg": "#f7f8fa",
+  "w": 414,
+  "h": 418
+ },
+ {
+  "id": "advanced-portfolio-management",
+  "name": "Advanced Portfolio Management",
+  "desc": "A Quant's Guide for Fundamental Investors, hardcover",
+  "price": 17.58,
+  "monthly": false,
+  "url": "https://a.co/d/04P2jdmJ",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/book.jpg",
+  "bg": "#192649",
+  "w": 283,
+  "h": 401
+ },
+ {
+  "id": "eveo-screen-cleaner-spray-kit",
+  "name": "EVEO Screen Cleaner Spray Kit",
+  "desc": "Streak-free screen cleaner, 6.7 fl oz, with cloth",
+  "price": 16.97,
+  "monthly": false,
+  "url": "https://a.co/d/03fusGTK",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/eveo.jpg",
+  "bg": "#f7f8fa",
+  "w": 400,
+  "h": 418
+ },
+ {
+  "id": "n-norocme-cable-management-kit",
+  "name": "N NOROCME Cable Management Kit",
+  "desc": "192-piece wire organizer set",
+  "price": 15.95,
+  "monthly": false,
+  "url": "https://a.co/d/0aRLBZtY",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/cablekit.jpg",
+  "bg": "#f7f8fa",
+  "w": 414,
+  "h": 413
+ },
+ {
+  "id": "tp-link-tl-sg105-ethernet-switch",
+  "name": "TP-Link TL-SG105 Ethernet Switch",
+  "desc": "5-port gigabit unmanaged switch",
+  "price": 14.99,
+  "monthly": false,
+  "url": "https://a.co/d/05ST1seL",
+  "star": false,
+  "store": "Amazon",
+  "img": "img/switch.jpg",
+  "bg": "#f7f8fa",
+  "w": 414,
+  "h": 235
+ },
+ {
+  "id": "runpod-credits",
+  "name": "Runpod credits",
+  "desc": "Cloud GPU credits, any amount",
+  "price": null,
+  "monthly": false,
+  "url": null,
+  "star": false,
+  "tile": "runpod"
+ },
+ {
+  "id": "money-toward-an-nvidia-dgx-spark-kit",
+  "name": "Money toward an NVIDIA DGX Spark Kit",
+  "desc": "NVIDIA DGX Spark HPC Developer Kit, 4 DGX Spark units",
+  "price": null,
+  "monthly": false,
+  "url": "https://marketplace.nvidia.com/en-us/enterprise/personal-ai-supercomputers/?locale=en-us&productLine=personal-ai-supercomputers&superchip=GB10&page=1&limit=30",
+  "star": true,
+  "store": "NVIDIA",
+  "img": "img/dgx.jpg",
+  "bg": "#ffffff",
+  "w": 351,
+  "h": 418
+ }
+];
+const RANGES = [
+  ["$100 and up", "#ff5a6a", p => p !== null && p >= 100],
+  ["$50 to $100", "#ffcf6b", p => p !== null && p >= 50 && p < 100],
+  ["$25 to $50", "#3ddc97", p => p !== null && p >= 25 && p < 50],
+  ["Under $25", "#5db7ff", p => p !== null && p < 25],
+  ["Any amount", "#b08cff", p => p === null],
+];
+const BACKEND = (window.WISHLIST_CONFIG && window.WISHLIST_CONFIG.backendUrl || "").trim();
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+};
+let purchased = {};               // id -> true
+let ryanMode = store.get("ryanMode") === "1";
+let loaded = false;
+const busy = new Set();
+const cards = {};
+
+function el(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text !== undefined) n.textContent = text;
+  return n;
+}
+const money = p => p === null ? "N/A" : "$" + p.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function build() {
+  const list = document.getElementById("list");
+  let rank = 0;
+  for (const [label, color, test] of RANGES) {
+    const its = ITEMS.filter(i => test(i.price));
+    if (!its.length) continue;
+    const sec = el("section");
+    const head = el("div", "sechead");
+    const h2 = el("h2", "", label); h2.style.setProperty("--c", color);
+    head.append(h2, el("span", "", its.length + (its.length === 1 ? " gift" : " gifts")));
+    const grid = el("div", "grid");
+    for (const it of its) {
+      rank++;
+      const card = el("article", "card");
+      const photo = el(it.url ? "a" : "div", "photo");
+      if (it.url) { photo.href = it.url; photo.target = "_blank"; photo.rel = "noopener"; photo.setAttribute("aria-label", it.name + " on " + it.store); }
+      if (it.img) {
+        photo.style.background = it.bg;
+        const im = el("img"); im.src = it.img; im.alt = it.name; im.loading = "lazy"; im.width = it.w; im.height = it.h;
+        photo.append(im);
+      } else {
+        const t = el("div", "tile " + it.tile);
+        const inner = el("div");
+        inner.append(el("b", "", it.tile === "claude" ? "Claude" : "Runpod"), el("small", "", it.tile === "claude" ? "one month" : "credits"));
+        t.append(inner); photo.append(t);
+      }
+      photo.append(el("span", "rank", String(rank).padStart(2, "0")));
+      if (it.star) { const s = el("span", "starbadge", "★"); s.title = "Most wanted"; photo.append(s); }
+      const ribbon = el("span", "ribbon", "PURCHASED"); ribbon.hidden = true;
+      const body = el("div", "body");
+      const row = el("div", "row");
+      const price = el("span", "price", money(it.price));
+      if (it.monthly) price.append(el("small", "", "for one month"));
+      row.append(price);
+      if (it.url) {
+        const a = el("a", "store"); a.href = it.url; a.target = "_blank"; a.rel = "noopener";
+        a.append(document.createTextNode(it.store + " "), el("b", "", "↗"));
+        row.append(a);
+      }
+      const btn = el("button", "buy", "Mark as purchased"); btn.type = "button"; btn.id = "buy-" + it.id;
+      btn.addEventListener("click", () => onBuy(it.id));
+      body.append(el("h3", "name", it.name), el("p", "desc", it.desc), row, btn);
+      card.append(photo, ribbon, body);
+      grid.append(card);
+      cards[it.id] = { card, btn, ribbon, armed: null };
+    }
+    sec.append(head, grid);
+    list.append(sec);
+  }
+}
+
+function render() {
+  const showState = BACKEND && loaded && !ryanMode;
+  let n = 0;
+  for (const it of ITEMS) {
+    const c = cards[it.id];
+    const got = !!purchased[it.id];
+    if (got) n++;
+    c.card.classList.toggle("bought", showState && got);
+    c.ribbon.hidden = !(showState && got);
+    c.btn.hidden = ryanMode;
+    c.btn.disabled = !BACKEND || !loaded || busy.has(it.id);
+    c.btn.classList.toggle("done", showState && got && !c.armed);
+    c.btn.classList.toggle("confirm", !!c.armed);
+    c.btn.textContent = busy.has(it.id) ? "Saving…"
+      : c.armed ? (got ? "Tap again to undo" : "Tap again to confirm")
+      : (showState && got) ? "Purchased ✓  (tap to undo)" : "Mark as purchased";
+  }
+  const count = document.getElementById("count");
+  count.hidden = !showState;
+  count.textContent = n + " of " + ITEMS.length + " purchased";
+  const hb = document.getElementById("hideBought");
+  hb.hidden = !showState;
+  document.body.classList.toggle("hide-bought", showState && hb.getAttribute("aria-pressed") === "true");
+  const rm = document.getElementById("ryanMode");
+  rm.setAttribute("aria-pressed", String(ryanMode));
+  rm.textContent = ryanMode ? "Ryan mode is on: purchases are hidden (tap to turn off)" : "I’m Ryan: hide what’s been bought";
+}
+
+function note(msg) {
+  const n = document.getElementById("notice");
+  n.hidden = !msg; n.textContent = msg || "";
+}
+
+async function refresh() {
+  if (!BACKEND) return;
+  try {
+    const r = await fetch(BACKEND + "?t=" + Date.now(), { redirect: "follow" });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || "bad response");
+    purchased = j.purchased || {};
+    loaded = true; note("");
+  } catch (e) {
+    if (!loaded) note("Couldn’t load what’s been purchased. Check your connection and reload the page.");
+  }
+  render();
+}
+
+async function onBuy(id) {
+  const c = cards[id];
+  if (!c.armed) {                                   // first tap arms, second tap confirms
+    c.armed = setTimeout(() => { c.armed = null; render(); }, 4000);
+    return render();
+  }
+  clearTimeout(c.armed); c.armed = null;
+  const want = !purchased[id];
+  busy.add(id); render();
+  try {
+    const r = await fetch(BACKEND, {
+      method: "POST", redirect: "follow",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ id, purchased: want }),
+    });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || "bad response");
+    purchased = j.purchased || {};
+    note("");
+  } catch (e) {
+    note("That didn’t save. Check your connection and try again.");
+  }
+  busy.delete(id); render();
+}
+
+build();
+document.getElementById("hideBought").addEventListener("click", e => {
+  const b = e.currentTarget; b.setAttribute("aria-pressed", String(b.getAttribute("aria-pressed") !== "true")); render();
+});
+document.getElementById("ryanMode").addEventListener("click", () => {
+  ryanMode = !ryanMode; store.set("ryanMode", ryanMode ? "1" : "0"); render();
+});
+if (!BACKEND) note("Purchase tracking isn’t connected yet, so the “Mark as purchased” buttons are off for now.");
+render();
+refresh();
+setInterval(() => { if (!document.hidden) refresh(); }, 20000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+</script>
+</body>
+</html>
