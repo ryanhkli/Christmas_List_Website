@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Purchase tracker setup</title>
+<title>Purchase tracker check</title>
 <style>
 :root { color-scheme: dark; --bg: #090d18; --card: #121829; --edge: #263049; --text: #f5f7fc; --muted: #8f9bb6; --green: #3ddc97; --gold: #ffcf6b; }
 * { box-sizing: border-box; }
@@ -25,42 +25,25 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 </head>
 <body>
 <main>
-  <h1>Purchase tracker setup</h1>
-  <p>This creates the shared storage that makes &ldquo;Mark as purchased&rdquo; update for everyone. Only Ryan needs to do this, once.</p>
-  <button id="go" type="button">Create the tracker</button>
-  <div class="box" id="ok" hidden>
-    <p style="margin-top:0;color:var(--text)"><strong>It worked.</strong> Send this code to Claude:</p>
-    <code id="code"></code>
-    <button id="copy" type="button">Copy the code</button>
-  </div>
-  <div class="box" id="bad" hidden>
-    <p style="margin-top:0;color:var(--text)"><strong>That didn&rsquo;t work from this browser.</strong> Send Claude a screenshot of this page:</p>
-    <pre id="log"></pre>
-  </div>
+  <h1>Purchase tracker check</h1>
+  <p>This saves a test value to the shared storage behind &ldquo;Mark as purchased&rdquo;, reads it back, and removes it again.</p>
+  <button id="go" type="button">Run the check</button>
+  <div class="box" id="res" hidden><pre id="log"></pre></div>
 </main>
+<script src="config.js"></script>
 <script src="store.js"></script>
 <script>
 const go = document.getElementById("go");
 go.addEventListener("click", async () => {
-  go.disabled = true; go.textContent = "Creating and testing…";
-  document.getElementById("ok").hidden = true; document.getElementById("bad").hidden = true;
-  let res;
-  try { res = await WishStore.create(); } catch (e) { res = { code: null, log: [String(e && e.message || e)] }; }
-  if (res.code) {
-    document.getElementById("code").textContent = res.code;
-    document.getElementById("ok").hidden = false;
-    go.textContent = "Done";
-  } else {
-    document.getElementById("log").textContent = res.log.join("\n");
-    document.getElementById("bad").hidden = false;
-    go.disabled = false; go.textContent = "Try again";
-  }
+  go.disabled = true; go.textContent = "Checking\u2026";
+  let lines;
+  try { lines = ["CHECK-RESULT"].concat(await WishStore.selfTest((window.WISHLIST_CONFIG || {}).backend || "")); }
+  catch (e) { lines = ["CHECK-RESULT", "FAILED: " + (e && e.message || e)]; }
+  document.getElementById("log").textContent = lines.join("\n");
+  document.getElementById("res").hidden = false;
+  go.disabled = false; go.textContent = "Run the check again";
 });
 if (/[?&]auto=1\b/.test(location.search)) go.click();
-document.getElementById("copy").addEventListener("click", async e => {
-  try { await navigator.clipboard.writeText(document.getElementById("code").textContent); e.currentTarget.textContent = "Copied"; }
-  catch (err) { e.currentTarget.textContent = "Press and hold the code to copy it"; }
-});
 </script>
 </body>
 </html>

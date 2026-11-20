@@ -1,11 +1,9 @@
 # Ryan's Christmas List
 
-A one-page wish list. `index.html` is the page, `img/` holds the photos, and `config.js` holds the
-address of the purchase tracker.
+A one-page wish list at https://ryanhkli.github.io/Christmas_List_Website/
 
-## Turning on "Mark as purchased"
-
-1. On a computer, open https://script.new while signed in to Google.
-2. Replace the sample code with the contents of `backend/Code.gs` and save.
-3. Deploy > New deployment > Web app. Set "Execute as" to Me and "Who has access" to Anyone, then Deploy and approve the permission prompt.
-4. Copy the web app URL and paste it between the quotes in `config.js`.
+- `index.html` is the page and `img/` holds the photos.
+- `store.js` saves which gifts are marked as purchased to two free public stores (textdb.dev and restful-api.dev).
+- `config.js` holds the storage code. Empty it to switch the purchase buttons off.
+- `setup.html` runs a save-and-read-back check of the storage.
+- `backend/Code.gs` is an optional Google Apps Script backend; paste its web app URL into `config.js` to use it instead.

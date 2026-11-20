@@ -687,7 +687,7 @@ function note(msg) {
 async function refresh() {
   if (!BACKEND) return;
   try {
-    purchased = await WishStore.read(BACKEND);
+    purchased = await WishStore.read(BACKEND, !loaded);
     loaded = true; note("");
   } catch (e) {
     if (!loaded) note("Couldn’t load what’s been purchased. Check your connection and reload the page.");
