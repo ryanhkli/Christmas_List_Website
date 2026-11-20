@@ -156,6 +156,7 @@ footer button.chip { margin-top: 18px; }
   </footer>
 </div>
 <script src="config.js"></script>
+<script src="store.js"></script>
 <script>
 const ITEMS = [
  {
@@ -578,7 +579,9 @@ const RANGES = [
   ["Under $25", "#5db7ff", p => p !== null && p < 25],
   ["Any amount", "#b08cff", p => p === null],
 ];
-const BACKEND = (window.WISHLIST_CONFIG && window.WISHLIST_CONFIG.backendUrl || "").trim();
+const CFG = window.WISHLIST_CONFIG || {};
+const RAW = (CFG.backend || CFG.backendUrl || "").trim();
+const BACKEND = WishStore.valid(RAW) ? RAW : "";
 const store = {
   get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
   set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
@@ -684,10 +687,7 @@ function note(msg) {
 async function refresh() {
   if (!BACKEND) return;
   try {
-    const r = await fetch(BACKEND + "?t=" + Date.now(), { redirect: "follow" });
-    const j = await r.json();
-    if (!j.ok) throw new Error(j.error || "bad response");
-    purchased = j.purchased || {};
+    purchased = await WishStore.read(BACKEND);
     loaded = true; note("");
   } catch (e) {
     if (!loaded) note("Couldn’t load what’s been purchased. Check your connection and reload the page.");
@@ -705,14 +705,7 @@ async function onBuy(id) {
   const want = !purchased[id];
   busy.add(id); render();
   try {
-    const r = await fetch(BACKEND, {
-      method: "POST", redirect: "follow",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ id, purchased: want }),
-    });
-    const j = await r.json();
-    if (!j.ok) throw new Error(j.error || "bad response");
-    purchased = j.purchased || {};
+    purchased = await WishStore.set(BACKEND, id, want);
     note("");
   } catch (e) {
     note("That didn’t save. Check your connection and try again.");
@@ -730,7 +723,7 @@ document.getElementById("ryanMode").addEventListener("click", () => {
 if (!BACKEND) note("Purchase tracking isn’t connected yet, so the “Mark as purchased” buttons are off for now.");
 render();
 refresh();
-setInterval(() => { if (!document.hidden) refresh(); }, 20000);
+setInterval(() => { if (!document.hidden) refresh(); }, 45000);
 document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
 </script>
 </body>

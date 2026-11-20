@@ -1,2 +1,2 @@
-// Paste the Google Apps Script web app URL between the quotes to turn on purchase tracking.
-window.WISHLIST_CONFIG = { backendUrl: "" };
+// Storage code for purchase tracking, created by setup.html. Leave empty to switch the buttons off.
+window.WISHLIST_CONFIG = { backend: "" };

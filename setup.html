@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Purchase tracker setup</title>
+<style>
+:root { color-scheme: dark; --bg: #090d18; --card: #121829; --edge: #263049; --text: #f5f7fc; --muted: #8f9bb6; --green: #3ddc97; --gold: #ffcf6b; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+main { max-width: 560px; margin: 0 auto; padding: 36px 18px 60px; }
+h1 { font-size: 28px; margin: 0 0 10px; }
+p { color: var(--muted); line-height: 1.5; font-size: 15px; }
+button { font: inherit; font-weight: 600; font-size: 16px; border: 0; border-radius: 12px; padding: 14px 18px; min-height: 50px; cursor: pointer; width: 100%; }
+#go { background: var(--green); color: #06140e; margin-top: 12px; }
+#go:disabled { opacity: .5; }
+#copy { background: var(--gold); color: #1a1300; margin-top: 12px; }
+.box { margin-top: 22px; padding: 16px; border: 1px solid var(--edge); background: var(--card); border-radius: 14px; }
+.box[hidden] { display: none; }
+code { display: block; font-size: 16px; word-break: break-all; color: var(--text); padding: 12px; background: #05070d; border-radius: 10px; user-select: all; -webkit-user-select: all; }
+pre { white-space: pre-wrap; word-break: break-word; font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Purchase tracker setup</h1>
+  <p>This creates the shared storage that makes &ldquo;Mark as purchased&rdquo; update for everyone. Only Ryan needs to do this, once.</p>
+  <button id="go" type="button">Create the tracker</button>
+  <div class="box" id="ok" hidden>
+    <p style="margin-top:0;color:var(--text)"><strong>It worked.</strong> Send this code to Claude:</p>
+    <code id="code"></code>
+    <button id="copy" type="button">Copy the code</button>
+  </div>
+  <div class="box" id="bad" hidden>
+    <p style="margin-top:0;color:var(--text)"><strong>That didn&rsquo;t work from this browser.</strong> Send Claude a screenshot of this page:</p>
+    <pre id="log"></pre>
+  </div>
+</main>
+<script src="store.js"></script>
+<script>
+const go = document.getElementById("go");
+go.addEventListener("click", async () => {
+  go.disabled = true; go.textContent = "Creating and testing…";
+  document.getElementById("ok").hidden = true; document.getElementById("bad").hidden = true;
+  let res;
+  try { res = await WishStore.create(); } catch (e) { res = { code: null, log: [String(e && e.message || e)] }; }
+  if (res.code) {
+    document.getElementById("code").textContent = res.code;
+    document.getElementById("ok").hidden = false;
+    go.textContent = "Done";
+  } else {
+    document.getElementById("log").textContent = res.log.join("\n");
+    document.getElementById("bad").hidden = false;
+    go.disabled = false; go.textContent = "Try again";
+  }
+});
+document.getElementById("copy").addEventListener("click", async e => {
+  try { await navigator.clipboard.writeText(document.getElementById("code").textContent); e.currentTarget.textContent = "Copied"; }
+  catch (err) { e.currentTarget.textContent = "Press and hold the code to copy it"; }
+});
+</script>
+</body>
+</html>
