@@ -56,6 +56,7 @@ go.addEventListener("click", async () => {
     go.disabled = false; go.textContent = "Try again";
   }
 });
+if (/[?&]auto=1\b/.test(location.search)) go.click();
 document.getElementById("copy").addEventListener("click", async e => {
   try { await navigator.clipboard.writeText(document.getElementById("code").textContent); e.currentTarget.textContent = "Copied"; }
   catch (err) { e.currentTarget.textContent = "Press and hold the code to copy it"; }
